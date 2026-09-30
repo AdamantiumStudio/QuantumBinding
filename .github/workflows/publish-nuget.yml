@@ -6,7 +6,7 @@
 # from 17 Aug 2026 last 30 days and every key made before that stops working on 1 Nov 2026.
 #
 # The matching policy on nuget.org (Account -> Trusted Publishing) must name:
-#   Repository Owner: QuantumDeveloper
+#   Repository Owner: AdamantiumStudio
 #   Repository:       QuantumBinding
 #   Workflow File:    publish-nuget.yml     <- this file's NAME only, no path
 #   Environment:      (leave empty)

@@ -9,8 +9,8 @@
     <Company>Adamantium Studio</Company>
     <Copyright>Copyright © 2019-2026 Adamantium Studio</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/QuantumDeveloper/QuantumBinding</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/QuantumDeveloper/QuantumBinding</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/AdamantiumStudio/QuantumBinding</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AdamantiumStudio/QuantumBinding</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

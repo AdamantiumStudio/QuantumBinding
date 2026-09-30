@@ -6,7 +6,7 @@ native structs. You drive it from a small console program, so you regenerate the
 whenever the headers change.
 
 QuantumBinding generates its own libclang bindings (`QuantumBinding.Clang`). It also generates the Vulkan, Slang and
-SPIR-V bindings of [AdamantiumVulkan](https://github.com/QuantumDeveloper/AdamantiumVulkan).
+SPIR-V bindings of [AdamantiumVulkan](https://github.com/AdamantiumStudio/AdamantiumVulkan).
 
 ## Packages
 
