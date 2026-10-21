@@ -85,6 +85,24 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
         return parseResult;
     }
 
+    private static string TargetTriple(Module module)
+    {
+        var architecture = module.TargetArchitecture switch
+        {
+            TargetArchitecture.x86 => "i686",
+            TargetArchitecture.x64 => "x86_64",
+            _ => throw new ArgumentOutOfRangeException(nameof(module), module.TargetArchitecture, null)
+        };
+
+        return module.TargetPlatform switch
+        {
+            TargetPlatform.Windows => $"{architecture}-pc-windows-msvc",
+            TargetPlatform.Linux => $"{architecture}-unknown-linux-gnu",
+            TargetPlatform.MacOS => $"{architecture}-apple-darwin",
+            _ => throw new ArgumentOutOfRangeException(nameof(module), module.TargetPlatform, null)
+        };
+    }
+
     private List<string> GetArguments()
     {
         var arguments = new List<string>
@@ -93,7 +111,8 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
             "-xc++",                                // The input files are C++
             "-Wno-pragma-once-outside-header",      // We are processing files which may be header files
             "-v",
-            "-fparse-all-comments"                  //To make clang parse comments
+            "-fparse-all-comments",                 //To make clang parse comments
+            $"--target={TargetTriple(_unit.Module)}"  // The module's platform, not the host's
         };
 
         // Point clang at its builtin resource headers (stddef.h/stdint.h/stdbool.h). libclang, when driven

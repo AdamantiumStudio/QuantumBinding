@@ -307,7 +307,8 @@ public static class ClangUtils
     public static string GetEnumUnderlyingType(this QBCursor cursor)
     {
         string inheritedEnumType;
-        CXTypeKind kind = cursor.GetEnumDeclIntegerType().Kind;
+        var integerType = cursor.GetEnumDeclIntegerType();
+        CXTypeKind kind = integerType.Kind;
 
         switch (kind)
         {
@@ -328,6 +329,13 @@ public static class ClangUtils
                 break;
             case CXTypeKind.CXType_ULongLong:
                 inheritedEnumType = "ulong";
+                break;
+            // As wide as the target makes a long: 32 bits on Windows, 64 on Linux and macOS.
+            case CXTypeKind.CXType_Long:
+                inheritedEnumType = integerType.Type_getSizeOf() == 8 ? "long" : "int";
+                break;
+            case CXTypeKind.CXType_ULong:
+                inheritedEnumType = integerType.Type_getSizeOf() == 8 ? "ulong" : "uint";
                 break;
             default:
                 inheritedEnumType = "int";
@@ -365,11 +373,14 @@ public static class ClangUtils
             case CXTypeKind.CXType_Double:
                 return PrimitiveType.Double;
             case CXTypeKind.CXType_Int:
-            case CXTypeKind.CXType_Long:
                 return PrimitiveType.Int32;
             case CXTypeKind.CXType_UInt:
-            case CXTypeKind.CXType_ULong:
                 return PrimitiveType.UInt32;
+            // A long is as wide as the target makes it: 32 bits on Windows, 64 on Linux and macOS.
+            case CXTypeKind.CXType_Long:
+                return canonical.Type_getSizeOf() == 8 ? PrimitiveType.Int64 : PrimitiveType.Int32;
+            case CXTypeKind.CXType_ULong:
+                return canonical.Type_getSizeOf() == 8 ? PrimitiveType.UInt64 : PrimitiveType.UInt32;
             case CXTypeKind.CXType_Int128:
                 return PrimitiveType.Decimal;
             case CXTypeKind.CXType_NullPtr:
