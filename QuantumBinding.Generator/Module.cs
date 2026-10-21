@@ -71,6 +71,15 @@ public class Module
     public bool CharAsBoolForMethods { get; set; }
         
     public TargetRuntime TargetRuntime { get; set; }
+
+    /// <summary>
+    /// The platform the headers are read for, Windows by default. Set it to the platform the bindings are for, not
+    /// the one the generator runs on: read for Windows on a Linux machine, the bindings come out as they do on Windows.
+    /// </summary>
+    public TargetPlatform TargetPlatform { get; set; } = TargetPlatform.Windows;
+
+    /// <summary>The architecture the headers are read for, x64 by default.</summary>
+    public TargetArchitecture TargetArchitecture { get; set; } = TargetArchitecture.x64;
     
     public IMetadataProvider MetadataProvider { get; set; }
     

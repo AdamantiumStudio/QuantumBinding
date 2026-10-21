@@ -156,6 +156,10 @@ public override void OnBeforeSetupPasses(ProcessingContext context)
 `module.TargetRuntime` picks what the generated code may use. `TargetRuntime.Net8Plus`, the default, passes arrays
 and strings as spans and memory. `TargetRuntime.NetStandard20` passes them as arrays.
 
+`module.TargetPlatform` and `module.TargetArchitecture` are what the headers are read for - `Windows` and `x64` by
+default - whatever machine the generator runs on. They decide what the C types are: a `long` is 32 bits on Windows and
+64 on Linux and macOS, and so is the `size_t` behind every length. Set them to the platform the bindings are for.
+
 ## C++ and COM libraries
 
 QuantumBinding reads C. For a C++ or COM library, write a flat C facade: `extern "C"` functions over opaque
