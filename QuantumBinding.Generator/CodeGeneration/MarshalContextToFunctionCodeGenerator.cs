@@ -472,11 +472,12 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
             TypePrinter.PopParameter();
             TypePrinter.PopMarshalType();
             WriteLine($"{argumentType.Type} {argumentName} = {Default};");
+            WritePredefinedFields(argumentName, classDecl.NativeStruct ?? classDecl);
             var argName = argumentName;
             PostActions.Enqueue(() => ConvertOutStructToClass(parameter, argName, classDecl));
             argumentName = $"&{argumentName}";
         }
-        
+
         CreateNativeParameter(parameter, argumentName, classDecl);
     }
     
@@ -644,6 +645,7 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
             }
             else
             {
+                WritePredefinedFields(argumentName, classDecl.NativeStruct ?? classDecl);
                 CreateNativeParameter(parameter, $"&{argumentName}", classDecl);
             }
         }
@@ -746,6 +748,7 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
             else if (classDecl.ClassType == ClassType.Class || classDecl.IsWrapper)
             {
                 WriteStackAlloc(argumentName, classDecl.NativeStruct.FullName, arrayLength);
+                WritePredefinedFieldsOfArray(argumentName, classDecl.NativeStruct, arrayLength);
                 PostActions.Enqueue(() => ImplicitTwoWayArrayTypeConversion(parameter, classDecl, argumentName, arrayLength));
             }
         }
@@ -756,6 +759,7 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
                 if (pointerDepth == 1)
                 {
                     WriteStackAlloc(argumentName, classDecl.NativeStruct.FullName, arrayLength);
+                    WritePredefinedFieldsOfArray(argumentName, classDecl.NativeStruct, arrayLength);
                 }
                 else
                 {
@@ -1078,6 +1082,33 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
         WriteLine($"{parameter.Name} = *{argumentName};");
     }
     
+    /// <summary>Writes into a native structure the fields whose values are known before the call - a Vulkan structure's
+    /// sType - as its wrapper writes them: a structure the callee fills still goes in naming what it is.</summary>
+    protected void WritePredefinedFields(string argumentName, Class nativeStruct)
+    {
+        foreach (var field in nativeStruct.Fields)
+        {
+            if (field.HasPredefinedValue)
+            {
+                WriteLine($"{argumentName}.{field.Name} = {field.GetPredefinedValue()};");
+            }
+        }
+    }
+
+    /// <summary>The same for every element of a native array the callee fills.</summary>
+    protected void WritePredefinedFieldsOfArray(string argumentName, Class nativeStruct, string arrayLength)
+    {
+        if (nativeStruct == null || !nativeStruct.Fields.Any(field => field.HasPredefinedValue))
+        {
+            return;
+        }
+
+        WriteLine($"for (var i = 0; i < (int){arrayLength}; ++i)");
+        WriteOpenBraceAndIndent();
+        WritePredefinedFields($"{argumentName}[i]", nativeStruct);
+        UnindentAndWriteCloseBrace();
+    }
+
     protected void ConvertOutStructToClass(Parameter parameter, string argumentName, Class classDecl)
     {
         var wrapperType = classDecl.Name;

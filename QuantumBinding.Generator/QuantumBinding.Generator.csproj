@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>QuantumBinding.Generator</PackageId>
-    <Version>3.1.0</Version>
+    <Version>3.1.1</Version>
     <IsPackable>true</IsPackable>
     <Description>Generates C# bindings from C headers through libclang. The native libclang comes from the libclang runtime packages: a project that runs the generator sets its RuntimeIdentifier and restores only its own platform's library.</Description>
     <PackageTags>interop;bindings;generator;clang;libclang;pinvoke</PackageTags>
