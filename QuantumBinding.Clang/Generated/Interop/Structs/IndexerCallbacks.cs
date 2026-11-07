@@ -20,29 +20,29 @@ public unsafe partial struct IndexerCallbacks
     ///<summary>
     /// Called periodically to check whether indexing should be aborted. Should return 0 to continue, and non-zero to abort.
     ///</summary>
-    public delegate* unmanaged<CXClientData, void*, int> abortQuery;
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, void*, int> abortQuery;
     ///<summary>
     /// Called at the end of indexing; passes the complete diagnostic set.
     ///</summary>
-    public delegate* unmanaged<CXClientData, CXDiagnosticSet, void*, void> diagnostic;
-    public delegate* unmanaged<CXClientData, CXFile, void*, CXIdxClientFile> enteredMainFile;
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXDiagnosticSet, void*, void> diagnostic;
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXFile, void*, QuantumBinding.Clang.Interop.CXIdxClientFile> enteredMainFile;
     ///<summary>
     /// Called when a file gets #included/#imported.
     ///</summary>
-    public delegate* unmanaged<CXClientData, CXIdxIncludedFileInfo*, CXIdxClientFile> ppIncludedFile;
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXIdxIncludedFileInfo*, QuantumBinding.Clang.Interop.CXIdxClientFile> ppIncludedFile;
     ///<summary>
     /// Called when a AST file (PCH or module) gets imported.
     ///</summary>
-    public delegate* unmanaged<CXClientData, CXIdxImportedASTFileInfo*, CXIdxClientASTFile> importedASTFile;
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXIdxImportedASTFileInfo*, QuantumBinding.Clang.Interop.CXIdxClientASTFile> importedASTFile;
     ///<summary>
     /// Called at the beginning of indexing a translation unit.
     ///</summary>
-    public delegate* unmanaged<CXClientData, void*, CXIdxClientContainer> startedTranslationUnit;
-    public delegate* unmanaged<CXClientData, CXIdxDeclInfo*, void> indexDeclaration;
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, void*, QuantumBinding.Clang.Interop.CXIdxClientContainer> startedTranslationUnit;
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXIdxDeclInfo*, void> indexDeclaration;
     ///<summary>
     /// Called to index a reference of an entity.
     ///</summary>
-    public delegate* unmanaged<CXClientData, CXIdxEntityRefInfo*, void> indexEntityReference;
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXIdxEntityRefInfo*, void> indexEntityReference;
 }
 
 
