@@ -83,6 +83,14 @@ public class Module
 
     /// <summary>The language the headers are read as, C++ by default.</summary>
     public SourceLanguage SourceLanguage { get; set; } = SourceLanguage.Cpp;
+
+    /// <summary>Whether an error clang reports while reading the headers fails the module; off by default, when the
+    /// errors are printed and the bindings are made from what clang could read.</summary>
+    public bool FailOnParseErrors { get; set; }
+
+    /// <summary>Whether clang searches the machine's own system headers, on by default. Off, it reads only the module's
+    /// include directories and clang's builtin headers, so the bindings come out the same on any machine.</summary>
+    public bool UseHostSystemHeaders { get; set; } = true;
     
     public IMetadataProvider MetadataProvider { get; set; }
     

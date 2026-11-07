@@ -66,6 +66,11 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
                 return parseResult;
             }
 
+            if (ReportErrors() > 0 && unit.Module.FailOnParseErrors)
+            {
+                return ParseResult.Failure;
+            }
+
             _visitor = VisitDelegate;
 
             _translationUnit.GetTranslationUnitCursor().VisitChildren((nuint)Marshal.GetFunctionPointerForDelegate(_visitor).ToPointer() , new QBClientData());
@@ -76,6 +81,7 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
         catch (Exception e)
         {
             Console.WriteLine(e);
+            parseResult = ParseResult.Crashed;
         }
         finally
         {
@@ -83,6 +89,34 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
         }
 
         return parseResult;
+    }
+
+    private Class OpaqueStruct(string name)
+    {
+        var @struct = _unit.AllClasses.FirstOrDefault(x => x.Name == name);
+        return @struct is { Fields.Count: 0 } ? @struct : null;
+    }
+
+    private const uint DiagnosticDisplayOptions =
+        (uint)(CXDiagnosticDisplayOptions.CXDiagnostic_DisplaySourceLocation | CXDiagnosticDisplayOptions.CXDiagnostic_DisplayColumn);
+
+    private int ReportErrors()
+    {
+        var errors = 0;
+        var count = _translationUnit.GetNumDiagnostics();
+        for (uint i = 0; i < count; ++i)
+        {
+            var diagnostic = _translationUnit.GetDiagnostic(i);
+            if (diagnostic.GetDiagnosticSeverity() >= CXDiagnosticSeverity.CXDiagnostic_Error)
+            {
+                Console.WriteLine(diagnostic.FormatDiagnostic(DiagnosticDisplayOptions).ToString());
+                errors++;
+            }
+
+            diagnostic.DisposeDiagnostic();
+        }
+
+        return errors;
     }
 
     private static string TargetTriple(Module module)
@@ -130,6 +164,11 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
         if (!string.IsNullOrEmpty(resourceDir))
         {
             arguments.Add($"-resource-dir={resourceDir}");
+        }
+
+        if (!_unit.Module.UseHostSystemHeaders)
+        {
+            arguments.Add("-nostdlibinc");
         }
 
         foreach (var define in _unit.Module.Defines)
@@ -481,7 +520,7 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
                     IsTypedef = true,
                     IsPointer = true,
                     ClassType = ClassType.Class,
-                    NativeStruct = _unit.AllClasses.FirstOrDefault(x => x.Name == pointeeName),
+                    NativeStruct = OpaqueStruct(pointeeName),
                     Comment = GetComment(cursor)
                 };
 
