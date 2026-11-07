@@ -106,7 +106,7 @@ public class Module
 
     public static Module Create(string libraryName, bool createDefaultParser = true)
     {
-        var module = new Module(libraryName).WithDefaultParser();
+        var module = new Module(libraryName);
         if (createDefaultParser)
         {
             module.WithDefaultParser();
