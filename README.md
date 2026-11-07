@@ -164,6 +164,17 @@ default - whatever machine the generator runs on. They decide what the C types a
 Set `SourceLanguage.C` for a C API whose headers carry C++ wrappers under `#ifdef __cplusplus` - CEF's are such - and
 the wrappers are left out, together with the C++ standard headers they include.
 
+`module.FailOnParseErrors` makes an error clang reports while reading the headers fail the module. Off by default: the
+errors are printed and the bindings are made from what clang could read, which for a missing type means a binding that
+quietly names the wrong thing.
+
+`module.UseHostSystemHeaders = false` keeps clang out of the machine's own system headers: it reads only the module's
+include directories and its builtin headers (`stddef.h`, `stdint.h`, ...). Headers read for another platform then do
+not pick up the machine's - glibc's for macOS on a Linux machine - and the bindings come out the same wherever they are
+generated. Types a header needs from the system then come from stub headers in an include directory. The builtin
+headers are the `clang-resource` folder the package places beside the generator (or `CLANG_RESOURCE_DIR`); without
+them `<stdint.h>` itself is not found.
+
 `module.GeneratorSpecializations` also decides the struct and union wrappers: without `StructWrappers` or
 `UnionWrappers` none are generated, and the bindings are the raw interop alone.
 
