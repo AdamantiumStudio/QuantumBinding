@@ -48,8 +48,8 @@ public abstract class CSharpCodeGeneratorBase : CodeGenerator
     protected CodeBlock UsingsBlock { get; set; }
     protected List<string> UsedUsings { get; }
     protected string CurrentNamespace { get; set; }
-    protected string InteropNamespace => $"{CurrentTranslationUnit.FullNamespace}.{TranslationUnit.InteropNamespaceExtension.SubNamespace}";
-    protected string InteropNamespaceExtension => TranslationUnit.InteropNamespaceExtension.SubNamespace;
+    protected string InteropNamespace => $"{CurrentTranslationUnit.FullNamespace}.{InteropNamespaceExtension}";
+    protected string InteropNamespaceExtension => CurrentTranslationUnit.Module.InteropSubNamespace;
     protected string MarshalToMethodName => "MarshalTo";
 
     protected readonly Queue<FixedStructInfo> FixedStructInfos = new Queue<FixedStructInfo>();
@@ -59,7 +59,7 @@ public abstract class CSharpCodeGeneratorBase : CodeGenerator
     {
         if (IsInteropGenerator)
         {
-            CurrentNamespace = $"{@namespace.FullNamespace}.{TranslationUnit.InteropNamespaceExtension.SubNamespace}";
+            CurrentNamespace = $"{@namespace.FullNamespace}.{InteropNamespaceExtension}";
         }
         else
         {

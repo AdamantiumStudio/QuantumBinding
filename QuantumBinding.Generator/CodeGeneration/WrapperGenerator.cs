@@ -7,7 +7,6 @@ namespace QuantumBinding.Generator.CodeGeneration;
 
 public class WrapperGenerator : CSharpCodeGenerator
 {
-    private readonly string interopNamespace = TranslationUnit.InteropNamespaceExtension.SubNamespace;
     private const string UnsafeClassName = "System.Runtime.CompilerServices.Unsafe";
     private const string MemoryMarshalClassName = "System.Runtime.InteropServices.MemoryMarshal";
     private const string MarshalContextClassName = "QuantumBinding.Utils.MarshallingContext";
@@ -123,7 +122,7 @@ public class WrapperGenerator : CSharpCodeGenerator
         WriteLine("using System;");
         WriteLine("using System.Runtime.InteropServices;");
         WriteLine($"using {Module.UtilsNamespace};");
-        var fullInteropNamespace =  $"{@CurrentTranslationUnit.FullNamespace}.{TranslationUnit.InteropNamespaceExtension.SubNamespace}";
+        var fullInteropNamespace = InteropNamespace;
         WriteLine($"using {fullInteropNamespace};");
         UsedUsings.Add(fullInteropNamespace);
 
@@ -1003,7 +1002,7 @@ public class WrapperGenerator : CSharpCodeGenerator
                 {
                     var splittedStr = fieldStr.Type.Split(' ');
                     splittedStr[1] =
-                        $"{field.Type.Declaration.Owner.FullNamespace}.{interopNamespace}.{splittedStr[1]}";
+                        $"{field.Type.Declaration.Owner.FullNamespace}.{field.Type.Declaration.Owner.Module.InteropSubNamespace}.{splittedStr[1]}";
                     fieldStr.Type = string.Join(' ', splittedStr);
                 }
 
@@ -1725,19 +1724,19 @@ public class WrapperGenerator : CSharpCodeGenerator
                     var structName = $"struct{index}";
                     if (propDecl.Name == decl.Name && decl.ClassType != ClassType.Class)
                     {
-                        string nativeType = $"{decl.NativeStruct.Owner.FullNamespace}.{InteropNamespaceExtension}.{decl.Name}";
-                        WriteLine($"{decl.NativeStruct.Owner.FullNamespace}.{InteropNamespaceExtension}.{decl.Name} {structName} = {@class.InputClassName}.{property.Name};");
+                        string nativeType = $"{decl.NativeStruct.InteropNamespace}.{decl.Name}";
+                        WriteLine($"{nativeType} {structName} = {@class.InputClassName}.{property.Name};");
                         WriteLine($"{contextName}.Destination[0].{property.Field.Name} = ({nativeType}*){UnsafeClassName}.AsPointer(ref {structName});");
                     }
                     else if (decl.ClassType == ClassType.Class && decl.NativeStruct != null)
                     {
-                        string nativeType = $"{decl.Owner.FullNamespace}.{InteropNamespaceExtension}.{decl.NativeStruct.Name}";
-                        WriteLine($"{decl.Owner.FullNamespace}.{InteropNamespaceExtension}.{decl.NativeStruct.Name} {structName} = {@class.InputClassName}.{property.Name};");
+                        string nativeType = $"{decl.InteropNamespace}.{decl.NativeStruct.Name}";
+                        WriteLine($"{nativeType} {structName} = {@class.InputClassName}.{property.Name};");
                         WriteLine($"{contextName}.Destination[0].{property.Field.Name} = ({nativeType}*){UnsafeClassName}.AsPointer(ref {structName});");
                     }
                     else
                     {
-                        WriteLine($"{decl.Owner.FullNamespace}.{InteropNamespaceExtension}.{decl.Name} {structName} = {@class.InputClassName}.{property.Name};");
+                        WriteLine($"{decl.InteropNamespace}.{decl.Name} {structName} = {@class.InputClassName}.{property.Name};");
                     }
                 }
             }

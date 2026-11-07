@@ -194,15 +194,7 @@ public static class ClangUtils
                     }
                     else
                     {
-                        if (elementType.Kind == CXTypeKind.CXType_Pointer)
-                        {
-                            var pointerType = (PointerType)elementType.GetBindingType();
-                            arrayType.ElementType = pointerType;
-                        }
-                        else
-                        {
-                            arrayType.ElementType = elementType.GetBindingType();
-                        }
+                        arrayType.ElementType = elementType.GetBindingType();
                     }
 
                     type = arrayType;
@@ -222,26 +214,15 @@ public static class ClangUtils
         return type;
     }
 
-    private static string NormalizeTypeName(string name)
+    /// <summary>A type's name without its qualifiers and the struct, union or enum keyword C spells a record's type
+    /// with: "const struct _x" is "_x", and "my_constant" stays as it is.</summary>
+    internal static string NormalizeTypeName(string name)
     {
         if (string.IsNullOrEmpty(name)) return name;
 
-        string result = name.Replace("const", "").Trim();
-
-        if (result.StartsWith("enum "))
-        {
-            result = result.Substring(5).Trim();
-        }
-        else if (result.StartsWith("struct "))
-        {
-            result = result.Substring(7).Trim();
-        }
-        else if (result.StartsWith("union "))
-        {
-            result = result.Substring(6).Trim();
-        }
-
-        return result;
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Where(part => part is not ("const" or "volatile" or "struct" or "union" or "enum"));
+        return string.Join(" ", parts);
     }
 
     public static bool IsPrimitiveType(this QBType type)

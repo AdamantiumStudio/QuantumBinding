@@ -105,10 +105,11 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
 
     private List<string> GetArguments()
     {
+        var isC = _unit.Module.SourceLanguage == SourceLanguage.C;
         var arguments = new List<string>
         {
-            "-std=c++14",                           // The input files should be compiled for C++ 11
-            "-xc++",                                // The input files are C++
+            isC ? "-std=c11" : "-std=c++14",
+            isC ? "-xc" : "-xc++",
             "-Wno-pragma-once-outside-header",      // We are processing files which may be header files
             "-v",
             "-fparse-all-comments",                 //To make clang parse comments
@@ -293,6 +294,16 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
     private CXChildVisitResult VisitStruct(QBCursor cursor, QBCursor parent, QBClientData data)
     {
         _fieldPosition = 0;
+
+        if (cursor.IsCursorDefinition() == 0)
+        {
+            var definition = cursor.GetCursorDefinition();
+            if (definition.Cursor_isNull() == 0 && !definition.IsInSystemHeader())
+            {
+                cursor = definition;
+            }
+        }
+
         var structName = cursor.GetCursorSpelling().ToString();
 
         // struct names can be empty, and so we visit its sibling to find the name
@@ -426,14 +437,20 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
         // we handle enums and records in struct and enum visitors with forward declarations also
         if (type.Kind is CXTypeKind.CXType_Record or CXTypeKind.CXType_Enum)
         {
-            var @class = _unit.AllClasses.FirstOrDefault(x => x.Name == type.ToString());
+            var typeName = type.ToString();
+            var @class = _unit.AllClasses.FirstOrDefault(x => x.Name == typeName);
+            if (@class == null)
+            {
+                typeName = ClangUtils.NormalizeTypeName(typeName);
+                @class = _unit.AllClasses.FirstOrDefault(x => x.Name == typeName);
+            }
             if (@class != null && @class.Name != spelling)
             {
                 _unit.AddDummyType(spelling, @class.Name);
             }
             else if (@class == null && type.Kind == CXTypeKind.CXType_Enum)
             {
-                _unit.AddDummyType(spelling, type.ToString());
+                _unit.AddDummyType(spelling, typeName);
             }
 
             return CXChildVisitResult.CXChildVisit_Continue;
@@ -454,11 +471,7 @@ public unsafe class ClangParser : ICXCursorVisitor, IMetadataProvider
             var pointee = type.GetPointeeType();
             if (pointee.Kind is CXTypeKind.CXType_Record or CXTypeKind.CXType_Void)
             {
-                var pointeeName = pointee.ToString();
-                if (pointeeName.StartsWith("const"))
-                {
-                    pointeeName = pointeeName.Replace("const", "").Trim();
-                }
+                var pointeeName = ClangUtils.NormalizeTypeName(pointee.ToString());
 
                 var @class = new Class
                 {

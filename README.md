@@ -160,6 +160,13 @@ and strings as spans and memory. `TargetRuntime.NetStandard20` passes them as ar
 default - whatever machine the generator runs on. They decide what the C types are: a `long` is 32 bits on Windows and
 64 on Linux and macOS, and so is the `size_t` behind every length. Set them to the platform the bindings are for.
 
+`module.SourceLanguage` is what the headers are read as: `SourceLanguage.Cpp` by default, so `__cplusplus` is defined.
+Set `SourceLanguage.C` for a C API whose headers carry C++ wrappers under `#ifdef __cplusplus` - CEF's are such - and
+the wrappers are left out, together with the C++ standard headers they include.
+
+`module.GeneratorSpecializations` also decides the struct and union wrappers: without `StructWrappers` or
+`UnionWrappers` none are generated, and the bindings are the raw interop alone.
+
 ## C++ and COM libraries
 
 QuantumBinding reads C. For a C++ or COM library, write a flat C facade: `extern "C"` functions over opaque

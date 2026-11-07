@@ -747,6 +747,12 @@ public class CSharpTypePrinter : TypePrinter
         {
             fieldResult = $"{field.Type.Declaration.InteropNamespace}.{fieldResult}";
         }
+        else if (field.Class is { ClassType: ClassType.Class } owner &&
+                 field.Type.Declaration is Class { ClassType: ClassType.Struct or ClassType.Union } native &&
+                 native.Name == owner.Name && native.Owner != null)
+        {
+            fieldResult = $"{native.InteropNamespace}.{fieldResult}";
+        }
         PopField();
         if (MarshalType != MarshalTypes.MethodParameter && MarshalType != MarshalTypes.SkipParamTypesAndModifiers)
         {
