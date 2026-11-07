@@ -32,7 +32,9 @@ public abstract class QuantumBindingGenerator
         foreach (var module in processingCtx.Options.Modules)
         {
             if (module == null) continue;
-                
+
+            DeclarationUnit.DummyTypes.Clear();
+
             if (string.IsNullOrEmpty(module.LibraryName))
             {
                 throw new ArgumentNullException("LibraryName should not be empty");
@@ -163,19 +165,29 @@ public abstract class QuantumBindingGenerator
 
     private void AfterSetupPassesInternal(ProcessingContext processingCtx)
     {
-        var specs = GeneratorSpecializations.StructWrappers | GeneratorSpecializations.UnionWrappers;
         foreach (var module in processingCtx.Options.Modules)
         {
             if (module == null) continue;
-                
+
             processingCtx.AddCodeGenerationPass(new BasicCodeGeneratorPass(module.GeneratorSpecializations), ExecutionPassKind.PerTranslationUnit, module);
 
-            processingCtx.AddPreGeneratorPass(new WrappersCreationPass(specs), ExecutionPassKind.PerTranslationUnit, module);
-            processingCtx.AddPreGeneratorPass(new UpdateWrappedMethodParametersPass(specs), ExecutionPassKind.PerTranslationUnit, module);
+            var specs = module.GeneratorSpecializations &
+                        (GeneratorSpecializations.StructWrappers | GeneratorSpecializations.UnionWrappers);
+            var wrappers = specs != GeneratorSpecializations.None;
+
+            if (wrappers)
+            {
+                processingCtx.AddPreGeneratorPass(new WrappersCreationPass(specs), ExecutionPassKind.PerTranslationUnit, module);
+                processingCtx.AddPreGeneratorPass(new UpdateWrappedMethodParametersPass(specs), ExecutionPassKind.PerTranslationUnit, module);
+            }
+
             processingCtx.AddPreGeneratorPass(new GlobalScopeToClassMethod(), ExecutionPassKind.PerTranslationUnit, module);
             processingCtx.AddPreGeneratorPass(new ContextGenerationAnalyzerPass(), ExecutionPassKind.PerTranslationUnit, module);
 
-            processingCtx.AddCodeGenerationPass(new WrappersCodeGenerationPass(), ExecutionPassKind.PerTranslationUnit, module);
+            if (wrappers)
+            {
+                processingCtx.AddCodeGenerationPass(new WrappersCodeGenerationPass(), ExecutionPassKind.PerTranslationUnit, module);
+            }
         }
     }
 

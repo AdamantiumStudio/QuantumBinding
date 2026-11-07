@@ -53,14 +53,6 @@ public class PostProcessingApiPass : PreGeneratorPass
                 {
                     foreach (var parameter in function.Parameters)
                     {
-                        if (parameter.Type.IsCustomType(out CustomType customType))
-                        {
-                            if (DeclarationUnit.DummyTypes.TryGetValue(customType.Name, out string realTypeName))
-                            {
-                                customType.Name = realTypeName;
-                            }
-                        }
-
                         var decl = GetDeclarationFromCustomType(parameter.Type);
 
                         if (decl is Class { ClassType: ClassType.Struct } @classDecl &&
@@ -100,20 +92,7 @@ public class PostProcessingApiPass : PreGeneratorPass
 
     private Declaration GetDeclarationFromCustomType(BindingType type)
     {
-        type.IsCustomType(out CustomType custom);
-        Declaration decl = null;
-        if (custom != null)
-        {
-            foreach (var unit in AstContext.TranslationUnits)
-            {
-                decl = unit.Declarations.FirstOrDefault(x => x.Name == custom.Name);
-
-                if (decl != null)
-                    break;
-            }
-        }
-
-        return decl;
+        return AstContext.FindCustomTypeDeclaration(type);
     }
 
     public override bool VisitMacro(Macro macro)

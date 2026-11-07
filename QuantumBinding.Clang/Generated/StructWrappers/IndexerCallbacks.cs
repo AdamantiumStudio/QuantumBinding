@@ -26,14 +26,14 @@ public unsafe partial class IndexerCallbacks : IMarshallableObject, IMarshallabl
         MarshalFrom(in native);
     }
 
-    public delegate* unmanaged<CXClientData, void*, int> AbortQuery { get; set; }
-    public delegate* unmanaged<CXClientData, CXDiagnosticSet, void*, void> Diagnostic { get; set; }
-    public delegate* unmanaged<CXClientData, CXFile, void*, CXIdxClientFile> EnteredMainFile { get; set; }
-    public delegate* unmanaged<CXClientData, CXIdxIncludedFileInfo*, CXIdxClientFile> PIncludedFile { get; set; }
-    public delegate* unmanaged<CXClientData, CXIdxImportedASTFileInfo*, CXIdxClientASTFile> ImportedASTFile { get; set; }
-    public delegate* unmanaged<CXClientData, void*, CXIdxClientContainer> StartedTranslationUnit { get; set; }
-    public delegate* unmanaged<CXClientData, CXIdxDeclInfo*, void> IndexDeclaration { get; set; }
-    public delegate* unmanaged<CXClientData, CXIdxEntityRefInfo*, void> IndexEntityReference { get; set; }
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, void*, int> AbortQuery { get; set; }
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXDiagnosticSet, void*, void> Diagnostic { get; set; }
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXFile, void*, QuantumBinding.Clang.Interop.CXIdxClientFile> EnteredMainFile { get; set; }
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXIdxIncludedFileInfo*, QuantumBinding.Clang.Interop.CXIdxClientFile> PIncludedFile { get; set; }
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXIdxImportedASTFileInfo*, QuantumBinding.Clang.Interop.CXIdxClientASTFile> ImportedASTFile { get; set; }
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, void*, QuantumBinding.Clang.Interop.CXIdxClientContainer> StartedTranslationUnit { get; set; }
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXIdxDeclInfo*, void> IndexDeclaration { get; set; }
+    public delegate* unmanaged<QuantumBinding.Clang.Interop.CXClientData, QuantumBinding.Clang.Interop.CXIdxEntityRefInfo*, void> IndexEntityReference { get; set; }
 
 
     public static implicit operator IndexerCallbacks(QuantumBinding.Clang.Interop.IndexerCallbacks i)

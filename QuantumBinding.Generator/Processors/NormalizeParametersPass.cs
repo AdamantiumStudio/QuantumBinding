@@ -84,6 +84,11 @@ public class NormalizeParametersPass : PreGeneratorPass
             field.AccessSpecifier = AccessSpecifier.Public;
             field.Name = "pointer";
             field.Type = new PointerType() { Pointee = new BuiltinType(PrimitiveType.Void) };
+            if (@class.NativeStruct.ClassType == ClassType.Union)
+            {
+                field.AddAttribute("[FieldOffset(0)]");
+            }
+
             @class.NativeStruct.AddField(field);
         }
 
@@ -99,19 +104,9 @@ public class NormalizeParametersPass : PreGeneratorPass
 
         if (field.Type.IsCustomType(out CustomType customType))
         {
-            if (DeclarationUnit.DummyTypes.TryGetValue(customType.Name, out string realTypeName))
-            {
-                customType.Name = realTypeName;
-            }
+            var decl = GetDeclarationFromCustomType(field.Type);
 
-            Declaration decl = null;
-            foreach (var unit in AstContext.TranslationUnits)
-            {
-                decl = unit.Declarations.FirstOrDefault(x => x.Name == customType.Name);
-                if (decl != null) break;
-            }
-
-            if (decl is Delegate @delegate)
+            if (decl is Delegate)
             {
                 var delegateType = new DelegateType() { Name = customType.Name, Declaration = decl };
                 field.Type = delegateType;
@@ -121,6 +116,8 @@ public class NormalizeParametersPass : PreGeneratorPass
                 field.Type.Declaration = decl;
             }
         }
+
+        ResolveFunctionPointers(field.Type);
 
         if (field.Type.IsPointer()) // if parameter is pointer to any type, then make it nullable for future possible manipulations
         {
@@ -141,6 +138,30 @@ public class NormalizeParametersPass : PreGeneratorPass
         return true;
     }
 
+    private void ResolveFunctionPointers(BindingType type)
+    {
+        switch (type)
+        {
+            case PointerType pointer:
+                ResolveFunctionPointers(pointer.Pointee);
+                break;
+            case ArrayType array:
+                ResolveFunctionPointers(array.ElementType);
+                break;
+            case DelegateType functionPointer:
+                foreach (var parameter in functionPointer.Parameters)
+                {
+                    ResolveFunctionPointers(parameter.Type);
+                    if (parameter.Type.IsCustomType(out _))
+                    {
+                        parameter.Type.Declaration = GetDeclarationFromCustomType(parameter.Type);
+                    }
+                }
+
+                break;
+        }
+    }
+
     public override bool VisitProperty(Property property)
     {
         if (CodeGenerator.ReservedWords.Contains(property.Name))
@@ -153,13 +174,7 @@ public class NormalizeParametersPass : PreGeneratorPass
 
     public override bool VisitParameter(Parameter parameter)
     {
-        if (parameter.Type.IsCustomType(out CustomType customType))
-        {
-            if (DeclarationUnit.DummyTypes.TryGetValue(customType.Name, out string realTypeName))
-            {
-                customType.Name = realTypeName;
-            }
-        }
+        ResolveFunctionPointers(parameter.Type);
 
         var decl = GetDeclarationFromCustomType(parameter.Type);
             
@@ -227,19 +242,6 @@ public class NormalizeParametersPass : PreGeneratorPass
 
     private Declaration GetDeclarationFromCustomType(BindingType type)
     {
-        type.IsCustomType(out CustomType custom);
-        Declaration decl = null;
-        if (custom != null)
-        {
-            foreach (var unit in AstContext.TranslationUnits)
-            {
-                decl = unit.Declarations.FirstOrDefault(x => x.Name == custom.Name);
-
-                if (decl != null) 
-                    break;
-            }
-        }
-
-        return decl;
+        return AstContext.FindCustomTypeDeclaration(type);
     }
 }

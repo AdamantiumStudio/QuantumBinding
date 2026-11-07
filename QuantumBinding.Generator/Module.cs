@@ -80,6 +80,9 @@ public class Module
 
     /// <summary>The architecture the headers are read for, x64 by default.</summary>
     public TargetArchitecture TargetArchitecture { get; set; } = TargetArchitecture.x64;
+
+    /// <summary>The language the headers are read as, C++ by default.</summary>
+    public SourceLanguage SourceLanguage { get; set; } = SourceLanguage.Cpp;
     
     public IMetadataProvider MetadataProvider { get; set; }
     
