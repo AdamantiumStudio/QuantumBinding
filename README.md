@@ -14,7 +14,7 @@ SPIR-V bindings of [AdamantiumVulkan](https://github.com/AdamantiumStudio/Adaman
 |---|---|---|
 | `QuantumBinding.Generator` | The generator. | Your generator program. |
 | `QuantumBinding.Clang` | C# bindings to the libclang C API. The generator parses headers through them. | Nowhere: it comes with the generator. |
-| `QuantumBinding.Utils` | Runtime helpers the generated code calls: marshaling contexts and native memory. Targets `net10.0` and `netstandard2.0`. | The project that holds the generated bindings. |
+| `QuantumBinding.Utils` | Runtime helpers the generated code calls: marshaling contexts and native memory. Targets `net11.0` and `netstandard2.0`. | The project that holds the generated bindings. |
 
 ## Quick start
 
@@ -25,7 +25,7 @@ SPIR-V bindings of [AdamantiumVulkan](https://github.com/AdamantiumStudio/Adaman
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <RuntimeIdentifier>$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
   </PropertyGroup>
 
