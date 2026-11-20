@@ -45,9 +45,9 @@ public unsafe partial class QBIndexOptions : IMarshallableObject, IMarshallableF
     public int GetSize()
     {
         var size = QuantumBinding.Utils.SizeOfCache<QuantumBinding.Clang.Interop.CXIndexOptions>.Size;
-        if (!string.IsNullOrEmpty(PreambleStoragePath))
+        if (PreambleStoragePath != null)
             size += System.Text.Encoding.UTF8.GetByteCount(PreambleStoragePath) + 1;
-        if (!string.IsNullOrEmpty(InvocationEmissionPath))
+        if (InvocationEmissionPath != null)
             size += System.Text.Encoding.UTF8.GetByteCount(InvocationEmissionPath) + 1;
         return size;
     }

@@ -41,9 +41,9 @@ public unsafe partial class QBIdxEntityInfo : IMarshallableObject, IMarshallable
     public int GetSize()
     {
         var size = QuantumBinding.Utils.SizeOfCache<QuantumBinding.Clang.Interop.CXIdxEntityInfo>.Size;
-        if (!string.IsNullOrEmpty(Name))
+        if (Name != null)
             size += System.Text.Encoding.UTF8.GetByteCount(Name) + 1;
-        if (!string.IsNullOrEmpty(USR))
+        if (USR != null)
             size += System.Text.Encoding.UTF8.GetByteCount(USR) + 1;
         if (!Attributes.IsEmpty)
         {

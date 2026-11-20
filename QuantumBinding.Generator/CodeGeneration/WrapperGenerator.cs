@@ -237,7 +237,7 @@ public class WrapperGenerator : CSharpCodeGenerator
                 }
                 else if (property.Type.IsString())
                 {
-                    WriteLine($"if (!string.IsNullOrEmpty({property.Name}))");
+                    WriteLine($"if ({property.Name} != null)");
                     PushIndent();
                     WriteLine($"size = Math.Max(size, System.Text.Encoding.UTF8.GetByteCount({property.Name}) + 1);");
                     PopIndent();
@@ -297,7 +297,7 @@ public class WrapperGenerator : CSharpCodeGenerator
                 }
                 else if (property.Type.IsString())
                 {
-                    WriteLine($"if (!string.IsNullOrEmpty({property.Name}))");
+                    WriteLine($"if ({property.Name} != null)");
                     PushIndent();
                     WriteLine($"size += System.Text.Encoding.UTF8.GetByteCount({property.Name}) + 1;");
                     PopIndent();
