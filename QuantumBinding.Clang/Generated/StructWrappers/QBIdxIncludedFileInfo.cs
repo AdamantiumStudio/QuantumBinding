@@ -42,7 +42,7 @@ public unsafe partial class QBIdxIncludedFileInfo : IMarshallableObject, IMarsha
     public int GetSize()
     {
         var size = QuantumBinding.Utils.SizeOfCache<QuantumBinding.Clang.Interop.CXIdxIncludedFileInfo>.Size;
-        if (!string.IsNullOrEmpty(Filename))
+        if (Filename != null)
             size += System.Text.Encoding.UTF8.GetByteCount(Filename) + 1;
         return size;
     }

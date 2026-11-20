@@ -39,9 +39,9 @@ public unsafe partial class QBUnsavedFile : IMarshallableObject, IMarshallableFr
     public int GetSize()
     {
         var size = QuantumBinding.Utils.SizeOfCache<QuantumBinding.Clang.Interop.CXUnsavedFile>.Size;
-        if (!string.IsNullOrEmpty(Filename))
+        if (Filename != null)
             size += System.Text.Encoding.UTF8.GetByteCount(Filename) + 1;
-        if (!string.IsNullOrEmpty(Contents))
+        if (Contents != null)
             size += System.Text.Encoding.UTF8.GetByteCount(Contents) + 1;
         return size;
     }
