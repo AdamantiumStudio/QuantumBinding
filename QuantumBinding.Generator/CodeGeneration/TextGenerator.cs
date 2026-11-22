@@ -43,6 +43,7 @@ public class TextGenerator: ITextGenerator
     public static string MarshalBlittableArrayToPointer => "QuantumBinding.Utils.MarshalingUtils.MarshalBlittableArrayToPointer";
     public static string MarshalPointerToStringArray => "QuantumBinding.Utils.MarshalingUtils.MarshalPointerToStringArray";
     public static string MarshalFromPointerToArray => "QuantumBinding.Utils.MarshalingUtils.MarshalFromPointerToArray";
+    public static string CopyFixedArray => "QuantumBinding.Utils.MarshalingUtils.CopyFixedArray";
     public static string MarshalFixedByteArrayToString => "QuantumBinding.Utils.MarshalingUtils.MarshalFixedByteArrayToString";
     public static string MarshalFixedCharArrayToString => "QuantumBinding.Utils.MarshalingUtils.MarshalFixedCharArrayToString";
     public static string MarshalStructToPointer => "QuantumBinding.Utils.MarshalingUtils.MarshalStructToPointer";

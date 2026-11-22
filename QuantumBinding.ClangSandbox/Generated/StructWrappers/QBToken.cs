@@ -58,11 +58,7 @@ public unsafe partial class QBToken : IMarshallableObject, IMarshallableFromPoin
 
     public void MarshalFrom(in QuantumBinding.Clang.Interop.CXToken native)
     {
-        var tmpInt_data = new uint[4];
-        var int_datap = native.int_data[0];
-        var pInt_data = (uint*)System.Runtime.CompilerServices.Unsafe.AsPointer(ref System.Runtime.CompilerServices.Unsafe.AsRef(in int_datap ));
-        QuantumBinding.Utils.MarshalingUtils.MarshalFromPointerToArray(pInt_data, 4, tmpInt_data);
-        Int_data = tmpInt_data;
+        Int_data = QuantumBinding.Utils.MarshalingUtils.CopyFixedArray(in native.int_data[0], new uint[4]);
         Ptr_data = (nuint)native.ptr_data;
 
     }
