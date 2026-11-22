@@ -47,11 +47,7 @@ public unsafe partial class QBFileUniqueID : IMarshallableObject, IMarshallableF
 
     public void MarshalFrom(in QuantumBinding.Clang.Interop.CXFileUniqueID native)
     {
-        var tmpData = new ulong[3];
-        var datap = native.data[0];
-        var pData = (ulong*)System.Runtime.CompilerServices.Unsafe.AsPointer(ref System.Runtime.CompilerServices.Unsafe.AsRef(in datap ));
-        QuantumBinding.Utils.MarshalingUtils.MarshalFromPointerToArray(pData, 3, tmpData);
-        Data = tmpData;
+        Data = QuantumBinding.Utils.MarshalingUtils.CopyFixedArray(in native.data[0], new ulong[3]);
 
     }
     public void* GetNativePointer<TContext>(ref TContext context) where TContext : IMarshallingContext, allows ref struct

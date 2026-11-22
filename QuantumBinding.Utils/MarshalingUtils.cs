@@ -361,6 +361,24 @@ public static unsafe class MarshalingUtils
         sourceSpan.Slice(0, toCopy).CopyTo(destination);
     }
 
+    /// <summary>Copies a fixed-size array field, by its first element, into <paramref name="destination"/> and returns it;
+    /// read through the reference, so the struct may lie anywhere - a managed array too - with nothing pinned.</summary>
+    public static TManaged[] CopyFixedArray<TNative, TManaged>(in TNative first, TManaged[] destination)
+        where TNative : unmanaged
+        where TManaged : unmanaged
+    {
+#if NET6_0_OR_GREATER
+        var source = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<TNative, TManaged>(ref Unsafe.AsRef(in first)), destination.Length);
+        source.CopyTo(destination);
+#else
+        fixed (TNative* source = &first)
+        {
+            new ReadOnlySpan<TManaged>(source, destination.Length).CopyTo(destination);
+        }
+#endif
+        return destination;
+    }
+
     public static TManaged[] MarshalFromPointerToArrayOfStructs<TManaged, TNative>(
         TNative* sourcePtr,
         uint sourceCount,

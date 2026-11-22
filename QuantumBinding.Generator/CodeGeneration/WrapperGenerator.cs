@@ -1357,13 +1357,12 @@ public class WrapperGenerator : CSharpCodeGenerator
             }
             else
             {
-                string tempArrayName = $"tmp{property.Name}";
-                
-                WriteLine($"var {tempArrayName} = new {managedType.Type}[{size}];");
-                WriteLine($"var {property.Field.Name}p = {parentClass.NativeStructFieldName}.{property.Field.Name}[0];");
-                WriteLine($"var p{property.Name} = ({managedType.Type}*){UnsafeClassName}.AsPointer(ref {UnsafeClassName}.AsRef(in {property.Field.Name}p ));");
-                WriteLine($"{TextGenerator.MarshalFromPointerToArray}(p{property.Name}, {size}, {tempArrayName});");
-                WriteLine($"{property.Name} = {tempArrayName};");
+                // By reference to the field's first element: a fixed buffer's by index, a buffer struct's - whose
+                // indexer returns a copy - by its item0.
+                var firstElement = arrayType.ElementType.CanConvertToFixedArray()
+                    ? $"{arrayName}[0]"
+                    : $"{arrayName}.item0";
+                WriteLine($"{property.Name} = {TextGenerator.CopyFixedArray}(in {firstElement}, new {managedType.Type}[{size}]);");
             }
         }
         else if (arrayType.ElementType.IsPurePointer())
