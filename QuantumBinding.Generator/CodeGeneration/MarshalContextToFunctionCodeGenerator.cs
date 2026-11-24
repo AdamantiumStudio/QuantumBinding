@@ -812,8 +812,12 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
         var buffer = $"{argumentName}Buffer";
         WriteLine($"{type}[] {rented} = null;");
         WriteLine($"var {length} = (int){arrayLength};");
-        WriteLine($"var {buffer} = {length} * sizeof({type}) <= {StackAllocThresholdPropertyName} ? {StackAlloc} {type}[{length}] : " +
+        WriteLine($"var {buffer} = (long){length} * sizeof({type}) <= {StackAllocThresholdPropertyName} ? {StackAlloc} {type}[{length}] : " +
                   $"({rented} = System.Buffers.ArrayPool<{type}>.Shared.Rent({length})).AsSpan(0, {length});");
+        WriteLine($"if ({rented} != null)");
+        PushIndent();
+        WriteLine($"{buffer}.Clear();");
+        PopIndent();
         WriteLine($"fixed ({type}* {argumentName} = {buffer})");
         WriteOpenBraceAndIndent();
         WriteLine("try");
