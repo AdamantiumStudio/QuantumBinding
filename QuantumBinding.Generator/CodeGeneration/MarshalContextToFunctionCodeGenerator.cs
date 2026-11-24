@@ -25,6 +25,8 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
     protected Method Method { get; set; }
     
     protected Queue<Action> PostActions { get; set; }
+
+    protected Stack<Action> ScopeClosers { get; } = new();
     
     protected List<Parameter> NativeParameters { get; set; }
     
@@ -55,6 +57,7 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
         Clear();
         
         PostActions.Clear();
+        ScopeClosers.Clear();
         NativeParameters.Clear();
         Method = method;
         
@@ -172,6 +175,11 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
         else if (method.ReturnType.IsString())
         {
             WriteLine($"return new string(result);");
+        }
+
+        while (ScopeClosers.Count > 0)
+        {
+            ScopeClosers.Pop().Invoke();
         }
 
         return ToString();
@@ -793,7 +801,35 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
 
     protected void WriteStackAlloc(string argumentName, string type, string arrayLength)
     {
-        WriteLine($"var {argumentName} = {StackAlloc} {type}[(int){arrayLength}];");
+        if (type.Contains('*'))
+        {
+            WriteLine($"var {argumentName} = {StackAlloc} {type}[(int){arrayLength}];");
+            return;
+        }
+
+        var rented = $"{argumentName}Rented";
+        var length = $"{argumentName}Length";
+        var buffer = $"{argumentName}Buffer";
+        WriteLine($"{type}[] {rented} = null;");
+        WriteLine($"var {length} = (int){arrayLength};");
+        WriteLine($"var {buffer} = {length} * sizeof({type}) <= {StackAllocThresholdPropertyName} ? {StackAlloc} {type}[{length}] : " +
+                  $"({rented} = System.Buffers.ArrayPool<{type}>.Shared.Rent({length})).AsSpan(0, {length});");
+        WriteLine($"fixed ({type}* {argumentName} = {buffer})");
+        WriteOpenBraceAndIndent();
+        WriteLine("try");
+        WriteOpenBraceAndIndent();
+        ScopeClosers.Push(() =>
+        {
+            UnindentAndWriteCloseBrace();
+            WriteLine("finally");
+            WriteOpenBraceAndIndent();
+            WriteLine($"if ({rented} != null)");
+            PushIndent();
+            WriteLine($"System.Buffers.ArrayPool<{type}>.Shared.Return({rented});");
+            PopIndent();
+            UnindentAndWriteCloseBrace();
+            UnindentAndWriteCloseBrace();
+        });
     }
 
     private void WriteConstArray(Parameter parameter, string argumentName)
