@@ -60,12 +60,27 @@ public unsafe partial class QBTranslationUnit : IUnmanagedWrapper<QuantumBinding
                 {
                     arg1 = QuantumBinding.Utils.MarshalContextUtils.MarshalArrayOfWrappers<QuantumBinding.Clang.QBToken, QuantumBinding.Clang.Interop.CXToken>(tokens, ref currentCursor);
                 }
-                var arg3 = stackalloc QuantumBinding.Clang.Interop.CXCursor[(int)numTokens];
-                QuantumBinding.Clang.Interop.ClangInterop.clang_annotateTokens(this, arg1, numTokens, arg3);
-                cursors = new QuantumBinding.Clang.QBCursor[numTokens];
-                for (var i = 0U; i < numTokens; ++i)
+                QuantumBinding.Clang.Interop.CXCursor[] arg3Rented = null;
+                var arg3Length = (int)numTokens;
+                var arg3Buffer = (long)arg3Length * sizeof(QuantumBinding.Clang.Interop.CXCursor) <= QuantumBinding.Utils.MarshalingUtils.StackAllocThreshold ? stackalloc QuantumBinding.Clang.Interop.CXCursor[arg3Length] : (arg3Rented = System.Buffers.ArrayPool<QuantumBinding.Clang.Interop.CXCursor>.Shared.Rent(arg3Length)).AsSpan(0, arg3Length);
+                if (arg3Rented != null)
+                    arg3Buffer.Clear();
+                fixed (QuantumBinding.Clang.Interop.CXCursor* arg3 = arg3Buffer)
                 {
-                    cursors[i] = new QuantumBinding.Clang.QBCursor(arg3[i]);
+                    try
+                    {
+                        QuantumBinding.Clang.Interop.ClangInterop.clang_annotateTokens(this, arg1, numTokens, arg3);
+                        cursors = new QuantumBinding.Clang.QBCursor[numTokens];
+                        for (var i = 0U; i < numTokens; ++i)
+                        {
+                            cursors[i] = new QuantumBinding.Clang.QBCursor(arg3[i]);
+                        }
+                    }
+                    finally
+                    {
+                        if (arg3Rented != null)
+                            System.Buffers.ArrayPool<QuantumBinding.Clang.Interop.CXCursor>.Shared.Return(arg3Rented);
+                    }
                 }
             }
             finally

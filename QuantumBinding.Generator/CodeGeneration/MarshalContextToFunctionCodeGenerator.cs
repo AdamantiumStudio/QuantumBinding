@@ -25,6 +25,8 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
     protected Method Method { get; set; }
     
     protected Queue<Action> PostActions { get; set; }
+
+    protected Stack<Action> ScopeClosers { get; } = new();
     
     protected List<Parameter> NativeParameters { get; set; }
     
@@ -55,6 +57,7 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
         Clear();
         
         PostActions.Clear();
+        ScopeClosers.Clear();
         NativeParameters.Clear();
         Method = method;
         
@@ -172,6 +175,11 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
         else if (method.ReturnType.IsString())
         {
             WriteLine($"return new string(result);");
+        }
+
+        while (ScopeClosers.Count > 0)
+        {
+            ScopeClosers.Pop().Invoke();
         }
 
         return ToString();
@@ -747,7 +755,7 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
             }
             else if (classDecl.ClassType == ClassType.Class || classDecl.IsWrapper)
             {
-                WriteStackAlloc(argumentName, classDecl.NativeStruct.FullName, arrayLength);
+                WriteOutputArray(argumentName, classDecl.NativeStruct.FullName, arrayLength);
                 WritePredefinedFieldsOfArray(argumentName, classDecl.NativeStruct, arrayLength);
                 PostActions.Enqueue(() => ImplicitTwoWayArrayTypeConversion(parameter, classDecl, argumentName, arrayLength));
             }
@@ -758,7 +766,7 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
             {
                 if (pointerDepth == 1)
                 {
-                    WriteStackAlloc(argumentName, classDecl.NativeStruct.FullName, arrayLength);
+                    WriteOutputArray(argumentName, classDecl.NativeStruct.FullName, arrayLength);
                     WritePredefinedFieldsOfArray(argumentName, classDecl.NativeStruct, arrayLength);
                 }
                 else
@@ -791,9 +799,35 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
         CreateNativeParameter(parameter, argumentName, classDecl);
     }
 
-    protected void WriteStackAlloc(string argumentName, string type, string arrayLength)
+    protected void WriteOutputArray(string argumentName, string type, string arrayLength)
     {
-        WriteLine($"var {argumentName} = {StackAlloc} {type}[(int){arrayLength}];");
+        var rented = $"{argumentName}Rented";
+        var length = $"{argumentName}Length";
+        var buffer = $"{argumentName}Buffer";
+        WriteLine($"{type}[] {rented} = null;");
+        WriteLine($"var {length} = (int){arrayLength};");
+        WriteLine($"var {buffer} = (long){length} * sizeof({type}) <= {StackAllocThresholdPropertyName} ? {StackAlloc} {type}[{length}] : " +
+                  $"({rented} = System.Buffers.ArrayPool<{type}>.Shared.Rent({length})).AsSpan(0, {length});");
+        WriteLine($"if ({rented} != null)");
+        PushIndent();
+        WriteLine($"{buffer}.Clear();");
+        PopIndent();
+        WriteLine($"fixed ({type}* {argumentName} = {buffer})");
+        WriteOpenBraceAndIndent();
+        WriteLine("try");
+        WriteOpenBraceAndIndent();
+        ScopeClosers.Push(() =>
+        {
+            UnindentAndWriteCloseBrace();
+            WriteLine("finally");
+            WriteOpenBraceAndIndent();
+            WriteLine($"if ({rented} != null)");
+            PushIndent();
+            WriteLine($"System.Buffers.ArrayPool<{type}>.Shared.Return({rented});");
+            PopIndent();
+            UnindentAndWriteCloseBrace();
+            UnindentAndWriteCloseBrace();
+        });
     }
 
     private void WriteConstArray(Parameter parameter, string argumentName)
@@ -962,13 +996,13 @@ public class MarshalContextToFunctionCodeGenerator : TextGenerator
         }
         else if (parameter.ParameterKind == ParameterKind.Ref)
         {
-            WriteStackAlloc(argumentName, typeStrResult.Type, arrayLength);
+            WriteOutputArray(argumentName, typeStrResult.Type, arrayLength);
 
             PostActions.Enqueue(() => ConvertPointerToArrayOfNativeType(parameter, argumentName, typeStrResult.Type, arrayLength));
         }
         else if (parameter.ParameterKind == ParameterKind.Out)
         {
-            WriteStackAlloc(argumentName, typeStrResult.Type, arrayLength);
+            WriteOutputArray(argumentName, typeStrResult.Type, arrayLength);
             PostActions.Enqueue(() => ConvertPointerToArrayOfNativeType(parameter, argumentName, typeStrResult.Type, arrayLength));
         }
         
