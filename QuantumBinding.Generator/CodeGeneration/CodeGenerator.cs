@@ -98,10 +98,14 @@ public abstract class CodeGenerator : CodeBlockGenerator
         WriteLine("///<summary>");
         foreach (var line in lines)
         {
-            WriteLine($"{GetMultilineCommentStart(CommentKind.CSharp)} {line}");
+            WriteLine($"{GetMultilineCommentStart(CommentKind.CSharp)} {EscapeXml(line)}");
         }
         WriteLine("///</summary>");
     }
+
+    // A native comment is plain text: its "<ping>" or "a && b" would be markup in a C# doc comment.
+    private static string EscapeXml(string text) =>
+        text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 
     public virtual void GenerateCommentIfNotEmpty(Comment comment)
     {

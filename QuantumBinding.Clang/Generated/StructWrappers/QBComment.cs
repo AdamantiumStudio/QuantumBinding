@@ -160,7 +160,7 @@ public unsafe partial class QBComment : IMarshallableObject, IMarshallableFromPo
     }
 
     ///<summary>
-    /// Returns non-zero if tag is self-closing (for example, <br />).
+    /// Returns non-zero if tag is self-closing (for example, &lt;br /&gt;).
     ///</summary>
     public uint HTMLStartTagComment_isSelfClosing()
     {
