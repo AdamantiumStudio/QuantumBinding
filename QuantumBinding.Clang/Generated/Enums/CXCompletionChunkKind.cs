@@ -77,12 +77,12 @@ public enum CXCompletionChunkKind : uint
     CXCompletionChunk_RightBrace = 11,
 
     ///<summary>
-    /// A left angle bracket ('<').
+    /// A left angle bracket ('&lt;').
     ///</summary>
     CXCompletionChunk_LeftAngle = 12,
 
     ///<summary>
-    /// A right angle bracket ('>').
+    /// A right angle bracket ('&gt;').
     ///</summary>
     CXCompletionChunk_RightAngle = 13,
 

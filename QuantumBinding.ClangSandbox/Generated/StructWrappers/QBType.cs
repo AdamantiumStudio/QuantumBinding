@@ -156,7 +156,7 @@ public unsafe partial class QBType : IMarshallableObject, IMarshallableFromPoint
     }
 
     ///<summary>
-    /// For reference types (e.g., "const int&"), returns the type that the reference refers to (e.g "const int").
+    /// For reference types (e.g., "const int&amp;"), returns the type that the reference refers to (e.g "const int").
     ///</summary>
     public QBType GetNonReferenceType()
     {

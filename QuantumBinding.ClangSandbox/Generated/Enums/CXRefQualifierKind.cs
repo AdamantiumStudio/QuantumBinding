@@ -20,12 +20,12 @@ public enum CXRefQualifierKind : uint
     CXRefQualifier_None = 0,
 
     ///<summary>
-    /// An lvalue ref-qualifier was provided ( &).
+    /// An lvalue ref-qualifier was provided ( &amp;).
     ///</summary>
     CXRefQualifier_LValue = 1,
 
     ///<summary>
-    /// An rvalue ref-qualifier was provided ( &&).
+    /// An rvalue ref-qualifier was provided ( &amp;&amp;).
     ///</summary>
     CXRefQualifier_RValue = 2,
 

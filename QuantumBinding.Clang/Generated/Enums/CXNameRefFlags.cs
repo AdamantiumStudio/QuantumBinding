@@ -20,7 +20,7 @@ public enum CXNameRefFlags : uint
     CXNameRange_WantQualifier = 1,
 
     ///<summary>
-    /// Include the explicit template arguments, e.g. <int> in x.f<int>, in the range.
+    /// Include the explicit template arguments, e.g. &lt;int&gt; in x.f&lt;int&gt;, in the range.
     ///</summary>
     CXNameRange_WantTemplateArgs = 2,
 

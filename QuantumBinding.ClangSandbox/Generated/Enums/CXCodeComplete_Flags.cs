@@ -38,7 +38,7 @@ public enum CXCodeComplete_Flags : uint
     CXCodeComplete_SkipPreamble = 8,
 
     ///<summary>
-    /// Whether to include completions with small fix-its, e.g. change '.' to '->' on member access, etc.
+    /// Whether to include completions with small fix-its, e.g. change '.' to '-&gt;' on member access, etc.
     ///</summary>
     CXCodeComplete_IncludeCompletionsWithFixIts = 16,
 

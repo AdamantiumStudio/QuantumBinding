@@ -1417,7 +1417,7 @@ public static unsafe partial class ClangInterop
     internal static extern CXModule clang_getModuleForFile(QuantumBinding.Clang.Interop.CXTranslationUnitImpl param0, QuantumBinding.Clang.Interop.CXFile param1);
 
     ///<summary>
-    /// For reference types (e.g., "const int&"), returns the type that the reference refers to (e.g "const int").
+    /// For reference types (e.g., "const int&amp;"), returns the type that the reference refers to (e.g "const int").
     ///</summary>
     [DllImport(LibraryPath, EntryPoint = "clang_getNonReferenceType", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
     internal static extern CXType clang_getNonReferenceType(QuantumBinding.Clang.Interop.CXType cT);
@@ -1699,7 +1699,7 @@ public static unsafe partial class ClangInterop
     internal static extern uint clang_HTMLStartTag_getNumAttrs(QuantumBinding.Clang.Interop.CXComment comment);
 
     ///<summary>
-    /// Returns non-zero if tag is self-closing (for example, <br />).
+    /// Returns non-zero if tag is self-closing (for example, &lt;br /&gt;).
     ///</summary>
     [DllImport(LibraryPath, EntryPoint = "clang_HTMLStartTagComment_isSelfClosing", ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
     internal static extern uint clang_HTMLStartTagComment_isSelfClosing(QuantumBinding.Clang.Interop.CXComment comment);

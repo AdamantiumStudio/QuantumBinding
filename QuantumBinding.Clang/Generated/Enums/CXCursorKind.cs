@@ -383,7 +383,7 @@ public enum CXCursorKind : uint
     CXCursor_ArraySubscriptExpr = 113,
 
     ///<summary>
-    /// A builtin binary operation expression such as "x + y" or "x <= y".
+    /// A builtin binary operation expression such as "x + y" or "x &lt;= y".
     ///</summary>
     CXCursor_BinaryOperator = 114,
 
@@ -413,7 +413,7 @@ public enum CXCursorKind : uint
     CXCursor_InitListExpr = 119,
 
     ///<summary>
-    /// The GNU address of label extension, representing &&label.
+    /// The GNU address of label extension, representing &amp;&amp;label.
     ///</summary>
     CXCursor_AddrLabelExpr = 120,
 
@@ -433,22 +433,22 @@ public enum CXCursorKind : uint
     CXCursor_GNUNullExpr = 123,
 
     ///<summary>
-    /// C++'s static_cast<> expression.
+    /// C++'s static_cast&lt;&gt; expression.
     ///</summary>
     CXCursor_CXXStaticCastExpr = 124,
 
     ///<summary>
-    /// C++'s dynamic_cast<> expression.
+    /// C++'s dynamic_cast&lt;&gt; expression.
     ///</summary>
     CXCursor_CXXDynamicCastExpr = 125,
 
     ///<summary>
-    /// C++'s reinterpret_cast<> expression.
+    /// C++'s reinterpret_cast&lt;&gt; expression.
     ///</summary>
     CXCursor_CXXReinterpretCastExpr = 126,
 
     ///<summary>
-    /// C++'s const_cast<> expression.
+    /// C++'s const_cast&lt;&gt; expression.
     ///</summary>
     CXCursor_CXXConstCastExpr = 127,
 
@@ -573,7 +573,7 @@ public enum CXCursorKind : uint
     CXCursor_OMPIteratorExpr = 151,
 
     ///<summary>
-    /// OpenCL's addrspace_cast<> expression.
+    /// OpenCL's addrspace_cast&lt;&gt; expression.
     ///</summary>
     CXCursor_CXXAddrspaceCastExpr = 152,
 
